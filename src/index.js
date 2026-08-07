@@ -64,11 +64,9 @@ export default {
 			const params = new URLSearchParams(initData);
 		    if (!params.has("query_id") || !params.has("user") || !params.has("auth_date") || !params.has("hash"))
 				return new Response(null, { status: 401 });
-			/*
 			if (!await tgutils.verifyInitData(params, params.get("hash"))) {
 				return new Response(null, { status: 403 });
 			};
-			*/
 			const userInfo = JSON.parse(params.get("user"));
 			return new Response(JSON.stringify({
 				ok: true,
@@ -87,11 +85,9 @@ export default {
 			const params = new URLSearchParams(initData);
 		    if (!params.has("query_id") || !params.has("user") || !params.has("auth_date") || !params.has("hash"))
 				return new Response(null, { status: 401 });
-			/*
 			if (!await tgutils.verifyInitData(params, params.get("hash"))) {
 				return new Response(null, { status: 403 });
 			};
-			*/
 			tgutils.declineChatJoinRequest(env.JOIN_CHAT_MANAGE, JSON.parse(params.get("user")).id);
 			return new Response(JSON.stringify({
 				ok: false,
