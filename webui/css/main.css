@@ -1,0 +1,143 @@
+:root {
+  background-color: var(--tg-theme-bg-color);
+  color: var(--tg-theme-text-color);
+  font-family: "Microsoft YaHei UI", Arial, Helvetica, sans-serif;
+}
+
+button {
+  color: var(--tg-theme-button-text-color);
+  background-color: var(--tg-theme-button-color);
+  padding: 8px;
+  width: 100%;
+  border: none;
+}
+
+code {
+  padding: 8px;
+  background-color: gray;
+  color: white;
+  display: block;
+  word-wrap: break-word;
+}
+
+input,
+textarea,
+button,
+code {
+  border-radius: 4px;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 8px;
+  margin: 8px 0;
+  box-sizing: border-box;
+}
+
+#loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#loading-overlay.hide {
+  visibility: hidden;
+  opacity: 0;
+  transition-property: visibility, opacity;
+  transition-timing-function: ease-out;
+  transition-duration: 1.5s;
+}
+
+.spinner-loading {
+  transform-origin: center;
+  animation: spinner_rotate 2s linear infinite;
+}
+.spinner-loading circle {
+  stroke-linecap: round;
+  animation: stroke_rotate 1.5s ease-in-out infinite;
+}
+@keyframes spinner_rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@keyframes stroke_rotate {
+  0% {
+    stroke-dasharray: 0 150;
+    stroke-dashoffset: 0;
+  }
+  47.5% {
+    stroke-dasharray: 42 150;
+    stroke-dashoffset: -16;
+  }
+  95%,
+  100% {
+    stroke-dasharray: 42 150;
+    stroke-dashoffset: -59;
+  }
+}
+
+.challenge-code {
+  color: transparent;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.unblur-challenge-code {
+  color: white;
+  text-shadow: none;
+  transition-property: color, text-shadow;
+  transition-timing-function: ease-out;
+  transition-duration: 1.5s;
+}
+
+.alert {
+  transform: scaleY(0);
+  opacity: 0;
+  border-radius: 4px;
+  background-color: red;
+  color: white;
+  padding: none;
+}
+
+.alert > p {
+  margin: 0px;
+}
+
+.terms {
+  border-radius: 4px;
+  background-color: lightskyblue;
+  color: black;
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  margin-top: 8px;
+}
+
+.show {
+  transform: scaleY(1);
+  transform-origin: top;
+  opacity: 1;
+  padding: 8px;
+  transition-property: transform, opacity, padding;
+  transition-timing-function: ease-out;
+  transition-duration: 0.5s;
+}

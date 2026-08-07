@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>LSPosed Internal Test</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="dns-prefetch" href="https://challenges.cloudflare.com/" />
+  <link rel="stylesheet" href="/css/main.css" />
+</head>
+
+<body>
+  <div id="loading-overlay">
+    <svg width="24" height="24" stroke="#FFF" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <g class="spinner-loading">
+        <circle cx="12" cy="12" r="9.5" fill="none" stroke-width="4"></circle>
+      </g>
+    </svg>
+  </div>
+  <div class="container">
+    <h1>
+      <p>Request to join LSPosed Internal Test<br>申请加入 LSPosed 内部测试</p>
+    </h1>
+    <div class="terms">
+      <h2>LSPosed Internal Testing Recruitment Terms</h2>
+      <div>
+        <h3>Recruitment Purpose</h3>
+        <ul>
+          <li>Software internal deployment testing, test versions will only be distributed through internal channels.
+          </li>
+        </ul>
+        <h3>Tester Requirements</h3>
+        <ul>
+          <li>Possess basic operational skills and be able to recover bricked devices.</li>
+          <li>Able to provide logs to developers.</li>
+          <li>Provide testing services voluntarily and adhere to confidentiality obligations, prohibiting sharing of
+            test software packages with others.</li>
+          <li>Waive the right to access the software's source code.</li>
+        </ul>
+        <p>If you agree to the above terms, please sign the following declaration.</p>
+      </div>
+    </div>
+    <div class="terms">
+      <h2>LSPosed 内部测试招募条款</h2>
+      <div>
+        <h3>招募目的</h3>
+        <ul>
+          <li>软件内部部署测试，测试版本仅通过内部渠道分发。</li>
+        </ul>
+        <h3>测试人员要求</h3>
+        <ul>
+          <li>具备基本操作能力，能够恢复变砖设备。</li>
+          <li>能向开发者提供日志。</li>
+          <li>无偿提供测试服务并履行保密义务，禁止向他人分享测试软件包。</li>
+          <li>放弃访问软件源代码的权利。</li>
+        </ul>
+        <p>如果同意以上条款，请签署以下证明。</p>
+      </div>
+    </div>
+    <p>
+    <div class="alert"></div>
+    </p>
+    <p>
+      Please sign the challenge code with your GitHub Authentication SSH keys and submit<br>请将下列挑战码用 GitHub SSH
+      身份验证密钥签名并提交
+    </p>
+    <p>UNIX and Windows Git Bash (tap to copy):</p>
+    <code
+      class="command-copy">echo -En "<span class="challenge-code">AscaKpYzqZ7WOKzCU5\4gDwf7fGDfpAYGrlb9u/cJeq\MslXdk5vCK4Wk2HOhE49</span>" | ssh-keygen -Y sign -n lsposed -f ~/.ssh/&lt;your-key&gt;</code>
+    <p>
+      <label for="username">GitHub username:<br>GitHub 用户名:</label>
+      <input type="text" autocomplete="off" placeholder="JonSnow" id="username" required>
+    </p>
+    <p>
+      <label for="signature">SSH Signature:<br>SSH 签名:</label>
+      <textarea rows="8" autocomplete="off"
+        placeholder="-----BEGIN SSH SIGNATURE-----&#10;XXXXXXXXXXXXXXXXXXXXXXXXXXXXX&#10;-----END SSH SIGNATURE-----"
+        id="signature" required></textarea>
+    </p>
+    <p id="cap">
+    </p>
+  </div>
+  <div class="container">
+    <p>
+      <a href="https://lsposed.org/privacy">Privacy Policy / 隐私协议</a>
+    </p>
+  </div>
+  <script src="/js/telegram-web-app.js"></script>
+  <script src="https://cap.baaad.xyz/assets/widget.js"></script>
+  <script src="/js/main_260621_06.js"></script>
+</body>
+
+</html>
