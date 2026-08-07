@@ -99,11 +99,10 @@ export default {
 				}
 			});
 		} else {
-			const indexResponse = await ASSETS.fetch(request);
-			if (indexResponse.status === 404) {
+			try {
+			    return await ASSETS.fetch(request);
+			} catch {
 				return new Response("404 page not found", { status: 404 });
-			} else {
-				return indexResponse;
 			}
 		}
         return new Response("200 ok", { status: 200 });
