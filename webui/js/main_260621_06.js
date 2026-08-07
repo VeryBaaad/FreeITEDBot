@@ -157,7 +157,7 @@
         if (isRoot)
           webapp.MainButton.disable()
       });
-      window.setTimeout(() => { c.solve() }, 15000)
+      c.solve()
     }
 
     setupCapInternal(siteKey)
