@@ -20,7 +20,7 @@ export default {
         const url = new URL(request.url);
 	    if (url.pathname === "/webhook") {
 	  	    if (request.cf.asOrganization != replies['other']['tg_org']
-			    || request.headers.get(replies['other']['srcret_head']) != env.WEBHOOK_SECRET
+			    || request.headers.get(replies['other']['secret_head']) != env.WEBHOOK_SECRET
 		    ) {
 			    return new Response(null, { status: 403 });
 		    }
