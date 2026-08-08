@@ -11,6 +11,7 @@
 import * as tgutils from './utils/telegram.js';
 import { verify } from './utils/gh_sign.js';
 import { isGitHubAccountFullOneDay } from './utils/gh_account.js';
+import { antiRobot } from './utils/anti_robot.js';
 const replies = require('./replies.js');
 
 export default {
@@ -117,7 +118,8 @@ export default {
 				});
 			}
 			if (await verify(payload.username, payload.signature, Buffer.from(String(userInfo.id)).toString("base64"))) {
-				if (!isGitHubAccountFullOneDay(username, { env }).ok) {
+				const ghResult = await isGitHubAccountFullOneDay(username, { env })
+				if (!ghResult.ok) {
 					tgutils.declineChatJoinRequest(env.JOIN_CHAT_MANAGE, userInfo.id);
 					tgutils.sendMessage(userInfo.id, replies['message']['github_not_eligible']);
 					return new Response(JSON.stringify({
@@ -131,9 +133,6 @@ export default {
 					});
 				}
 				tgutils.approveChatJoinRequest(env.JOIN_CHAT_MANAGE, userInfo.id);
-				env.ITED_USERS.put(userInfo.id, JSON.stringify({
-					github
-				}));
 				tgutils.sendMessage(userInfo.id, replies['message']['approved']);
 				return new Response(JSON.stringify({
 					ok: true,
@@ -161,7 +160,7 @@ export default {
 			try {
 			    return await ASSETS.fetch(request);
 			} catch {
-				return new Response("404 page not found", { status: 404 });
+				return await antiRobot(env.AI, url.pathname);
 			}
 		}
         return new Response("200 ok", { status: 200 });
