@@ -96,7 +96,8 @@ export async function antiRobot(ai, path) {
                 status: 200
             });
         }
-    } catch {
+    } catch(e) {
+        console.error("ANTI ROBOT ERROR", e);
         return new Response("404 page not found", { status: 404 });
     }
 }
