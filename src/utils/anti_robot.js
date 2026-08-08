@@ -40,7 +40,7 @@ export async function antiRobot(ai, path) {
             const { done, value } = await reader.read();
             if (done) break;
             parseChunk(value);
-            if (/404\s+page\s+not\s+found/i.test(generatedText)) {
+            if (/4\s*0*\s*4\s+page\s+not\s+found/i.test(generatedText)) {
                 isMatched = true;
                 break;
             }
