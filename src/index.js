@@ -160,7 +160,13 @@ export default {
 			try {
 			    return await ASSETS.fetch(request);
 			} catch {
-				return await antiRobot(env.AI, url.pathname);
+				let decodedPath;
+				try {
+				    decodedPath = decodeURIComponent(url.pathname);
+				} catch {
+					decodedPath = url.pathname;
+				}
+				return await antiRobot(env.AI, decodedPath);
 			}
 		}
         return new Response("200 ok", { status: 200 });
