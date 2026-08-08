@@ -1,6 +1,6 @@
 const replies = require('./../replies.js');
 
-async function antiRobot(ai, path) {
+export async function antiRobot(ai, path) {
     try {
         const messages = [
             { role: "system", content: replies['other']['unknown_path_tips'] },
