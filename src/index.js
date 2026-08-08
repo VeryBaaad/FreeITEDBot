@@ -9,11 +9,14 @@
  */
 
 import * as tgutils from './utils/telegram.js';
+import { verify } from './utils/gh_sign.js';
+import { isGitHubAccountFullOneDay } from './utils/gh_account.js';
 const replies = require('./replies.js');
 
 export default {
     async fetch(request, env, ctx) {
 	    global.bot_token = env.BOT_TOKEN;
+		global.github_token = env.GH_TOKEN;
 	    if (!bot_token) {
 		  throw new Error(replies['error']['missing_bot_token']);
 	    }
@@ -88,16 +91,72 @@ export default {
 			if (!await tgutils.verifyInitData(params, params.get("hash"))) {
 				return new Response(null, { status: 403 });
 			};
-			tgutils.declineChatJoinRequest(env.JOIN_CHAT_MANAGE, JSON.parse(params.get("user")).id);
-			return new Response(JSON.stringify({
-				ok: false,
-				message: replies['message']['github_not_eligible']
-			}), {
-				status: 200,
-				headers: {
-					"Content-Type": "application/json"
+			const userInfo = JSON.parse(params.get("user"));
+			let payload;
+		    try {
+			    payload = await request.json();
+		    } catch {
+			    return new Response(null, { status: 400 });
+		    }
+			const { cap_success } = await (
+				await fetch("https://cap.baaad.xyz/" + env.CAP_SITE_KEY + "/siteverify", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ secret: env.CAP_SITE_SECRET, response: payload.token }),
+				})
+			).json();
+			if (!cap_success) {
+				return new Response(JSON.stringify({
+					ok: false,
+					message: "Please complete Cap verification\n请完成 Cap 验证"
+				}), {
+					status: 200,
+					headers: {
+						"Content-Type": "application/json"
+					}
+				});
+			}
+			if (await verify(payload.username, payload.signature, Buffer.from(String(userInfo.id)).toString("base64"))) {
+				if (!isGitHubAccountFullOneDay(username, { env }).ok) {
+					tgutils.declineChatJoinRequest(env.JOIN_CHAT_MANAGE, userInfo.id);
+					tgutils.sendMessage(userInfo.id, replies['message']['github_not_eligible']);
+					return new Response(JSON.stringify({
+						ok: false,
+						message: replies['message']['github_not_eligible']
+					}), {
+						status: 200,
+						headers: {
+							"Content-Type": "application/json"
+						}
+					});
 				}
-			});
+				tgutils.approveChatJoinRequest(env.JOIN_CHAT_MANAGE, userInfo.id);
+				env.ITED_USERS.put(userInfo.id, JSON.stringify({
+					github
+				}));
+				tgutils.sendMessage(userInfo.id, replies['message']['approved']);
+				return new Response(JSON.stringify({
+					ok: true,
+					message: replies['message']['approved']
+				}), {
+					status: 200,
+					headers: {
+						"Content-Type": "application/json"
+					}
+				});
+			} else {
+				tgutils.declineChatJoinRequest(env.JOIN_CHAT_MANAGE, userInfo.id);
+				tgutils.sendMessage(userInfo.id, replies['message']['signature_failed']);
+				return new Response(JSON.stringify({
+					ok: false,
+					message: replies['message']['signature_failed']
+				}), {
+					status: 200,
+					headers: {
+						"Content-Type": "application/json"
+					}
+				});
+			}
 		} else {
 			try {
 			    return await ASSETS.fetch(request);

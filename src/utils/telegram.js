@@ -30,7 +30,7 @@ async function declineChatJoinRequest(chatId, userId) {
   );
 };
 
-async function sendMessage(chatId, text, reply_to) {
+async function sendMessage(chatId, text) {
   return await fetch(
     `https://api.telegram.org/bot${bot_token}/sendMessage`,
     {
@@ -48,12 +48,6 @@ async function sendMessage(chatId, text, reply_to) {
 
 async function verifyInitData(params, hash) {
 	params.delete("hash");
-	const authDate = Number(params.get('auth_date'))
-	const now = Math.floor(Date.now() / 1000)
-	const maxAge = 3600
-	if (now - authDate > maxAge) {
-		return false
-	}
 	const entries = Array.from(params.entries()).sort((a, b) => {
 		if (a[0] < b[0]) return -1
 		if (a[0] > b[0]) return 1
