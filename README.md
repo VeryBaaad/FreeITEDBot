@@ -11,3 +11,9 @@
 | CAP_SITE_SECRET  | sk-1145141919810                      |
 | VERIFY_URL       | https://example.com/                  |
 | GH_TOKEN         | ghp_1145141919810                     |
+
+## bind
+
+| Name | Object     |
+| ---- | ---------- |
+| AI   | Workers AI |
