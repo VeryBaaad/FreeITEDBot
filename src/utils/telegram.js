@@ -1,4 +1,4 @@
-async function approveChatJoinRequest(chatId, userId) {
+export async function approveChatJoinRequest(chatId, userId) {
   return await fetch(
     `https://api.telegram.org/bot${bot_token}/approveChatJoinRequest`,
     {
@@ -14,7 +14,7 @@ async function approveChatJoinRequest(chatId, userId) {
   );
 };
 
-async function declineChatJoinRequest(chatId, userId) {
+export async function declineChatJoinRequest(chatId, userId) {
   return await fetch(
     `https://api.telegram.org/bot${bot_token}/declineChatJoinRequest`,
     {
@@ -30,7 +30,7 @@ async function declineChatJoinRequest(chatId, userId) {
   );
 };
 
-async function sendMessage(chatId, text) {
+export async function sendMessage(chatId, text) {
   return await fetch(
     `https://api.telegram.org/bot${bot_token}/sendMessage`,
     {
@@ -46,7 +46,7 @@ async function sendMessage(chatId, text) {
   );
 };
 
-async function verifyInitData(params, hash) {
+export async function verifyInitData(params, hash) {
 	params.delete("hash");
 	const entries = Array.from(params.entries()).sort((a, b) => {
 		if (a[0] < b[0]) return -1
