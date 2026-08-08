@@ -60,7 +60,7 @@ export async function antiRobot(ai, path) {
             return new Response(bytes, {
                 headers: {
                     "Content-Type": "application/octet-stream",
-                    "Content-Disposition": 'attachment; filename="random-1mb.bin"',
+                    "Content-Disposition": 'attachment',
                     "Content-Length": String(size),
                     "Cache-Control": "no-store",
                 },
