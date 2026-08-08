@@ -120,8 +120,8 @@ export default {
 			if (await verify(payload.username, payload.signature, Buffer.from(String(userInfo.id)).toString("base64"))) {
 				const ghResult = await isGitHubAccountFullOneDay(username, { env })
 				if (!ghResult.ok) {
-					tgutils.declineChatJoinRequest(env.JOIN_CHAT_MANAGE, userInfo.id);
-					tgutils.sendMessage(userInfo.id, replies['message']['github_not_eligible']);
+					await tgutils.declineChatJoinRequest(env.JOIN_CHAT_MANAGE, userInfo.id);
+					await tgutils.sendMessage(userInfo.id, replies['message']['github_not_eligible']);
 					return new Response(JSON.stringify({
 						ok: false,
 						message: replies['message']['github_not_eligible']
@@ -132,8 +132,8 @@ export default {
 						}
 					});
 				}
-				tgutils.approveChatJoinRequest(env.JOIN_CHAT_MANAGE, userInfo.id);
-				tgutils.sendMessage(userInfo.id, replies['message']['approved']);
+				await tgutils.approveChatJoinRequest(env.JOIN_CHAT_MANAGE, userInfo.id);
+				await tgutils.sendMessage(userInfo.id, replies['message']['approved']);
 				return new Response(JSON.stringify({
 					ok: true,
 					message: replies['message']['approved']
@@ -144,8 +144,8 @@ export default {
 					}
 				});
 			} else {
-				tgutils.declineChatJoinRequest(env.JOIN_CHAT_MANAGE, userInfo.id);
-				tgutils.sendMessage(userInfo.id, replies['message']['signature_failed']);
+				await tgutils.declineChatJoinRequest(env.JOIN_CHAT_MANAGE, userInfo.id);
+				await tgutils.sendMessage(userInfo.id, replies['message']['signature_failed']);
 				return new Response(JSON.stringify({
 					ok: false,
 					message: replies['message']['signature_failed']
