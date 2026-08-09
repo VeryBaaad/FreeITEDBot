@@ -9,7 +9,7 @@ export async function getTelegramBanResult(tgkv, tgId) {
 }
 
 export async function banTelegramAccount(tgkv, id, result, chatid) {
-    const tgData = await tgkv.get(String(id), "json");
+    let tgData = await tgkv.get(String(id), "json");
     if (tgData === null) {
         tgData = {
             github: 0
@@ -31,7 +31,7 @@ export async function banTelegramAccount(tgkv, id, result, chatid) {
 }
 
 export async function banGitHubAccount(ghkv, id, result) {
-    const ghData = await ghkv.get(String(id), "json");
+    let ghData = await ghkv.get(String(id), "json");
     if (ghData === null) {
         ghData = {
             telegram: 0
