@@ -30,7 +30,7 @@ export async function declineChatJoinRequest(chatId, userId) {
   );
 };
 
-export async function sendMessage(chatId, text) {
+export async function sendMessage(chatId, text, markdown = false) {
   return await fetch(
     `https://api.telegram.org/bot${bot_token}/sendMessage`,
     {
@@ -41,6 +41,7 @@ export async function sendMessage(chatId, text) {
       body: JSON.stringify({
         chat_id: chatId,
         text: text,
+		parse_mode: markdown ? "MarkdownV2" : undefined,
       }),
     }
   );

@@ -121,3 +121,7 @@ export async function checkGitHubAccountAge(username, options = {}) {
     };
   }
 };
+
+export async function isGitHubAccountInList(ghkv, id) {
+  return await ghkv.get(String(id)) !== null;
+}

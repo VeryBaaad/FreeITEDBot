@@ -11,9 +11,12 @@
 | CAP_SITE_SECRET  | sk-1145141919810                      |
 | VERIFY_URL       | https://example.com/                  |
 | GH_TOKEN         | ghp_1145141919810                     |
+| TG_ADMIN_USERS   | 114514,1919810                        |
 
 ## bind
 
-| Name | Object     |
-| ---- | ---------- |
-| AI   | Workers AI |
+| Name          | Object     |
+| ------------- | ---------- |
+| AI            | Workers AI |
+| ITED_USERS    | KV         |
+| ITED_GH_USERS | KV         |

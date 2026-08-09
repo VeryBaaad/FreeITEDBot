@@ -37,14 +37,27 @@
 	 * https://developers.cloudflare.com/workers/static-assets/binding/
 	 */
 	"assets": {
-		"directory": "./webui/",  "binding": "ASSETS"
+		"directory": "./webui/",
+		"binding": "ASSETS"
 	},
 	/**
 	 * Service Bindings (communicate between multiple Workers)
 	 * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
 	 */
 	// "services": [  {   "binding": "MY_SERVICE",   "service": "my-service"  } ]
-    "ai": {
-        "binding": "AI"
-    }
+	"ai": {
+		"binding": "AI"
+	},
+	"kv_namespaces": [
+		{
+			"binding": "ITED_USERS",
+			"id": "4475bebfbe06416989600871eeb960d2",
+			"remote": true
+		},
+		{
+			"binding": "ITED_GH_USERS",
+			"id": "385c1dfb52cc4733bb0e0c445a7b33ea",
+			"remote": true
+		}
+	]
 }
