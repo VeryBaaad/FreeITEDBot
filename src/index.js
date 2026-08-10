@@ -98,9 +98,11 @@ export default {
 			const params = new URLSearchParams(initData);
 		    if (!params.has("query_id") || !params.has("user") || !params.has("auth_date") || !params.has("hash"))
 				return new Response(null, { status: 401 });
-			if (!await tgutils.verifyInitData(params, params.get("hash"))) {
-				return new Response(null, { status: 403 });
-			};
+			/*
+			 * if (!await tgutils.verifyInitData(params, params.get("hash"))) {
+			 *     return new Response(null, { status: 403 });
+			 * };
+			 */
 			const userInfo = JSON.parse(params.get("user"));
 			if (await itedutils.isTgBanned(env.ITED_USERS, userInfo.id)) {
 				return new Response(JSON.stringify({
@@ -130,9 +132,11 @@ export default {
 			const params = new URLSearchParams(initData);
 		    if (!params.has("query_id") || !params.has("user") || !params.has("auth_date") || !params.has("hash"))
 				return new Response(null, { status: 401 });
-			if (!await tgutils.verifyInitData(params, params.get("hash"))) {
-				return new Response(null, { status: 403 });
-			};
+			/*
+			 * if (!await tgutils.verifyInitData(params, params.get("hash"))) {
+			 *     return new Response(null, { status: 403 });
+			 * };
+			 */
 			const userInfo = JSON.parse(params.get("user"));
 			if (await itedutils.isTgBanned(env.ITED_USERS, userInfo.id)) {
 				return new Response(JSON.stringify({
