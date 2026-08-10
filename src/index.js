@@ -151,14 +151,14 @@ export default {
 		    } catch {
 			    return new Response(null, { status: 400 });
 		    }
-			const { cap_success } = await (
+			const { success } = await (
 				await fetch("https://cap.baaad.xyz/" + env.CAP_SITE_KEY + "/siteverify", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({ secret: env.CAP_SITE_SECRET, response: payload.token }),
 				})
 			).json();
-			if (!cap_success) {
+			if (!success) {
 				return new Response(JSON.stringify({
 					ok: false,
 					message: "Please complete Cap verification\n请完成 Cap 验证"
