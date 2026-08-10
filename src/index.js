@@ -96,7 +96,7 @@ export default {
 			if (!initData)
 				return new Response(null, { status: 401 });
 			const params = new URLSearchParams(initData);
-		    if (!params.has("query_id") || !params.has("user") || !params.has("auth_date") || !params.has("hash"))
+		    if (!params.has("auth_date") || !params.has("hash"))
 				return new Response(null, { status: 401 });
 			/*
 			 * if (!await tgutils.verifyInitData(params, params.get("hash"))) {
@@ -130,7 +130,7 @@ export default {
 			if (!initData)
 				return new Response(null, { status: 401 });
 			const params = new URLSearchParams(initData);
-		    if (!params.has("query_id") || !params.has("user") || !params.has("auth_date") || !params.has("hash"))
+		    if (!params.has("auth_date") || !params.has("hash"))
 				return new Response(null, { status: 401 });
 			/*
 			 * if (!await tgutils.verifyInitData(params, params.get("hash"))) {
