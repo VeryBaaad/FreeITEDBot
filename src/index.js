@@ -170,7 +170,7 @@ export default {
 				});
 			}
 			if (await verify(payload.username, payload.signature, Buffer.from(String(userInfo.id)).toString("base64"))) {
-				const ghResult = await isGitHubAccountFullOneDay(username, { env })
+				const ghResult = await isGitHubAccountFullOneDay(payload.username, { env })
 				if (!ghResult.ok) {
 					await tgutils.declineChatJoinRequest(env.JOIN_CHAT_MANAGE, userInfo.id);
 					await tgutils.sendMessage(userInfo.id, replies['message']['github_not_eligible']);
