@@ -76,7 +76,7 @@ export default {
 				if (payload.message.chat.type === "private") {
 					if (payload.message.text && (payload.message.text.startsWith("/start dl")
 					    || payload.message.text.startsWith("/dl"))) {
-						if (await itedutils.isWithinTimeLimit(env.ITED_USERS, payload.message.from.id)) {
+						if (!await itedutils.isWithinTimeLimit(env.ITED_USERS, payload.message.from.id)) {
 							await tgutils.sendMessage(payload.message.chat.id, replies['message']['waittime']);
 							return new Response(null, { status: 200 });
 						}
@@ -215,16 +215,6 @@ export default {
 			}
 			if (await tgutils.isJoined(env.JOIN_CHAT_MANAGE, userInfo.id) && !payload.username && !payload.signature) {
 				if (await itedutils.isWithinTimeLimit(env.ITED_USERS, userInfo.id)) {
-					return new Response(JSON.stringify({
-						ok: false,
-						message: replies['message']['waittime']
-					}), {
-						status: 200,
-						headers: {
-							"Content-Type": "application/json"
-						}
-					});
-				} else {
 					await tgutils.sendMessage(userInfo.id, replies['message']['uploading']);
 					if (await itedutils.isDebugMode(env.ITED_USERS, userInfo.id)) {
 						await ghutils.runWorkflow(env.GH_REPO, "debug.yml", env.GH_BRANCH, {
@@ -240,6 +230,16 @@ export default {
 					return new Response(JSON.stringify({
 						ok: true,
 						message: replies['message']['uploading']
+					}), {
+						status: 200,
+						headers: {
+							"Content-Type": "application/json"
+						}
+					});
+				} else {
+					return new Response(JSON.stringify({
+						ok: false,
+						message: replies['message']['waittime']
 					}), {
 						status: 200,
 						headers: {
