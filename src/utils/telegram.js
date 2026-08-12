@@ -47,6 +47,19 @@ export async function sendMessage(chatId, text, markdown = false) {
   );
 };
 
+export async function isJoined(chatId, userId) {
+	const response = await fetch(
+		`https://api.telegram.org/bot${bot_token}/getChatMember?chat_id=${chatId}&user_id=${userId}`
+	);
+	if (!response.ok) return false;
+	const data = await response.json();
+	if (data.ok) {
+		const status = data.result.status;
+		return status == "member" || status == "administrator" || status == "creator";
+	}
+	return false;
+};
+
 export async function verifyInitData(params, hash) {
 	params.delete("hash");
 	const entries = Array.from(params.entries()).sort((a, b) => {
@@ -92,4 +105,4 @@ export async function verifyInitData(params, hash) {
 	    .map(b => b.toString(16).padStart(2, '0'))
 	    .join('');
     return calculatedHash === hash.toLowerCase();
-}
+};

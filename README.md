@@ -12,6 +12,8 @@
 | VERIFY_URL       | https://example.com/                  |
 | GH_TOKEN         | ghp_1145141919810                     |
 | TG_ADMIN_USERS   | 114514,1919810                        |
+| GH_REPO          | actions/checkout                      |
+| GH_BRANCH        | main                                  |
 
 ## bind
 

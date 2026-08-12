@@ -10,6 +10,7 @@
 
 import * as tgutils from './utils/telegram.js';
 import * as itedutils from './utils/lspited.js';
+import * as ghutils from './utils/ghutils.js';
 import { verify } from './utils/gh_sign.js';
 import { isGitHubAccountFullOneDay, isGitHubAccountInList } from './utils/gh_account.js';
 import { antiRobot } from './utils/anti_robot.js';
@@ -67,26 +68,69 @@ export default {
 					}
 				);
 				return new Response(null, { status: 200 });
-			} else if (payload.message && await itedutils.isUserAdmin(env.TG_ADMIN_USERS, payload.message.from?.id)) {
+			} else if (payload.message) {
 				if (await itedutils.isTgBanned(env.ITED_USERS, payload.message.from.id)) {
 					await tgutils.sendMessage(payload.message.chat.id, replies['message']['banned']);
 					return new Response(null, { status: 200 });
 				}
-				if (payload.message.text && payload.message.text.startsWith("!ban ")) {
-					const parts = payload.message.text.split(" ");
-					if (parts.length >= 2 && parts[1]) {
-						const userId = parts[1];
-						const reason = await itedutils.escapeMarkdownV2(parts.slice(2).join(" ")) || "leak";
-						await itedutils.banTelegramAccount(env.ITED_USERS, userId, reason, env.JOIN_CHAT_MANAGE);
-						await tgutils.sendMessage(payload.message.chat.id, `User ${userId} banned for reason: \`${reason}\``, true);
+				if (payload.message.chat.type === "private") {
+					if (payload.message.text && (payload.message.text.startsWith("/start dl")
+					    || payload.message.text.startsWith("/dl"))) {
+						if (await itedutils.isWithinTimeLimit(env.ITED_USERS, payload.message.from.id)) {
+							await tgutils.sendMessage(payload.message.chat.id, replies['message']['waittime']);
+							return new Response(null, { status: 200 });
+						}
+						if (payload.message.text && payload.message.text.startsWith("/dl_debug")) {
+							await itedutils.setDebugMode(env.ITED_USERS, payload.message.from.id, true);
+						} else {
+							await itedutils.setDebugMode(env.ITED_USERS, payload.message.from.id, false);
+						}
+						const nowTimestamp = Math.floor(Date.now() / 1000);
+						await itedutils.setTimestamp(env.ITED_USERS, payload.message.from.id, nowTimestamp);
+						await fetch(
+							`https://api.telegram.org/bot${bot_token}/sendMessage`,
+							{
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify({
+								chat_id: payload.message.from.id,
+								text: replies['message']['complete_verification'],
+								reply_markup: {
+									inline_keyboard: [
+										[
+											{
+												text: replies['button']['verify'],
+												web_app: {
+													url: env.VERIFY_URL + "dl/?ts=" + nowTimestamp
+												}
+											}
+										]
+									]
+								}
+							}),
+							}
+						);
 					}
-				} else if (payload.message.text && payload.message.text.startsWith("!ban_github ")) {
-					const parts = payload.message.text.split(" ");
-					if (parts.length >= 2 && parts[1]) {
-						const ghId = parts[1];
-						const reason = await itedutils.escapeMarkdownV2(parts.slice(2).join(" ")) || "leak";
-						await itedutils.banGitHubAccount(env.ITED_GH_USERS, ghId, reason);
-						await tgutils.sendMessage(payload.message.chat.id, `Github user ${ghId} banned for reason: \`${reason}\``, true);
+				}
+				if (await itedutils.isUserAdmin(env.TG_ADMIN_USERS, payload.message.from?.id)) {
+					if (payload.message.text && payload.message.text.startsWith("!ban ")) {
+						const parts = payload.message.text.split(" ");
+						if (parts.length >= 2 && parts[1]) {
+							const userId = parts[1];
+							const reason = await itedutils.escapeMarkdownV2(parts.slice(2).join(" ")) || "leak";
+							await itedutils.banTelegramAccount(env.ITED_USERS, userId, reason, env.JOIN_CHAT_MANAGE);
+							await tgutils.sendMessage(payload.message.chat.id, `User ${userId} banned for reason: \`${reason}\``, true);
+						}
+					} else if (payload.message.text && payload.message.text.startsWith("!ban_github ")) {
+						const parts = payload.message.text.split(" ");
+						if (parts.length >= 2 && parts[1]) {
+							const ghId = parts[1];
+							const reason = await itedutils.escapeMarkdownV2(parts.slice(2).join(" ")) || "leak";
+							await itedutils.banGitHubAccount(env.ITED_GH_USERS, ghId, reason);
+							await tgutils.sendMessage(payload.message.chat.id, `Github user ${ghId} banned for reason: \`${reason}\``, true);
+						}
 					}
 				}
 				return new Response(null, { status: 200 });
@@ -169,64 +213,22 @@ export default {
 					}
 				});
 			}
-			if (await verify(payload.username, payload.signature, Buffer.from(String(userInfo.id)).toString("base64"))) {
-				const ghResult = await isGitHubAccountFullOneDay(payload.username, { env })
-				if (!ghResult.ok) {
-					await tgutils.declineChatJoinRequest(env.JOIN_CHAT_MANAGE, userInfo.id);
-					await tgutils.sendMessage(userInfo.id, replies['message']['github_not_eligible']);
-					return new Response(JSON.stringify({
-						ok: false,
-						message: replies['message']['github_not_eligible']
-					}), {
-						status: 200,
-						headers: {
-							"Content-Type": "application/json"
-						}
+			if (await tgutils.isJoined(env.JOIN_CHAT_MANAGE, userInfo.id) && !payload.username && !payload.signature) {
+				await tgutils.sendMessage(userInfo.id, replies['message']['uploading']);
+				if (await itedutils.isDebugMode(env.ITED_USERS, userInfo.id)) {
+					await ghutils.runWorkflow(env.GH_REPO, "debug.yml", env.GH_BRANCH, {
+						github_id: await itedutils.findTelegramToGitHub(env.ITED_USERS, userInfo.id),
+						tg_id: userInfo.id,
+					});
+				} else {
+					await ghutils.runWorkflow(env.GH_REPO, "release.yml", env.GH_BRANCH, {
+						github_id: await itedutils.findTelegramToGitHub(env.ITED_USERS, userInfo.id),
+						tg_id: userInfo.id,
 					});
 				}
-				if (await itedutils.isGhBanned(env.ITED_GH_USERS, ghResult.id)) {
-					await tgutils.declineChatJoinRequest(env.JOIN_CHAT_MANAGE, userInfo.id);
-					await itedutils.banTelegramAccount(env.ITED_USERS, userInfo.id, await itedutils.getGitHubBanResult(env.ITED_GH_USERS, ghResult.id), env.JOIN_CHAT_MANAGE);
-					await tgutils.sendMessage(userInfo.id, replies['message']['banned']);
-					return new Response(JSON.stringify({
-						ok: false,
-						message: replies['message']['banned']
-					}), {
-						status: 200,
-						headers: {
-							"Content-Type": "application/json"
-						}
-					});
-				}
-				if (await isGitHubAccountInList(env.ITED_GH_USERS, ghResult.id)) {
-					const tgId = await itedutils.findGitHubToTelegram(env.ITED_GH_USERS, ghResult.id);
-					await tgutils.declineChatJoinRequest(env.JOIN_CHAT_MANAGE, userInfo.id);
-					await itedutils.banTelegramAccount(env.ITED_USERS, userInfo.id, "duplicate", env.JOIN_CHAT_MANAGE);
-					await itedutils.banTelegramAccount(env.ITED_USERS, tgId, "duplicate", env.JOIN_CHAT_MANAGE);
-					await itedutils.banGitHubAccount(env.ITED_GH_USERS, ghResult.id, "duplicate");
-					await tgutils.sendMessage(userInfo.id, replies['message']['duplicate']);
-					await tgutils.sendMessage(tgId, replies['message']['banned']);
-					return new Response(JSON.stringify({
-						ok: false,
-						message: replies['message']['duplicate']
-					}), {
-						status: 200,
-						headers: {
-							"Content-Type": "application/json"
-						}
-					});
-				}
-				await tgutils.approveChatJoinRequest(env.JOIN_CHAT_MANAGE, userInfo.id);
-				await env.ITED_USERS.put(userInfo.id, JSON.stringify({
-					github: ghResult.id
-				}));
-				await env.ITED_GH_USERS.put(ghResult.id, JSON.stringify({
-					telegram: userInfo.id
-				}));
-				await tgutils.sendMessage(userInfo.id, replies['message']['approved']);
 				return new Response(JSON.stringify({
 					ok: true,
-					message: replies['message']['approved']
+					message: replies['message']['uploading']
 				}), {
 					status: 200,
 					headers: {
@@ -234,17 +236,83 @@ export default {
 					}
 				});
 			} else {
-				await tgutils.declineChatJoinRequest(env.JOIN_CHAT_MANAGE, userInfo.id);
-				await tgutils.sendMessage(userInfo.id, replies['message']['signature_failed']);
-				return new Response(JSON.stringify({
-					ok: false,
-					message: replies['message']['signature_failed']
-				}), {
-					status: 200,
-					headers: {
-						"Content-Type": "application/json"
+				if (await verify(payload.username, payload.signature, Buffer.from(String(userInfo.id)).toString("base64"))) {
+					const ghResult = await isGitHubAccountFullOneDay(payload.username, { env })
+					if (!ghResult.ok) {
+						await tgutils.declineChatJoinRequest(env.JOIN_CHAT_MANAGE, userInfo.id);
+						await tgutils.sendMessage(userInfo.id, replies['message']['github_not_eligible']);
+						return new Response(JSON.stringify({
+							ok: false,
+							message: replies['message']['github_not_eligible']
+						}), {
+							status: 200,
+							headers: {
+								"Content-Type": "application/json"
+							}
+						});
 					}
-				});
+					if (await itedutils.isGhBanned(env.ITED_GH_USERS, ghResult.id)) {
+						await tgutils.declineChatJoinRequest(env.JOIN_CHAT_MANAGE, userInfo.id);
+						await itedutils.banTelegramAccount(env.ITED_USERS, userInfo.id, await itedutils.getGitHubBanResult(env.ITED_GH_USERS, ghResult.id), env.JOIN_CHAT_MANAGE);
+						await tgutils.sendMessage(userInfo.id, replies['message']['banned']);
+						return new Response(JSON.stringify({
+							ok: false,
+							message: replies['message']['banned']
+						}), {
+							status: 200,
+							headers: {
+								"Content-Type": "application/json"
+							}
+						});
+					}
+					if (await isGitHubAccountInList(env.ITED_GH_USERS, ghResult.id)) {
+						const tgId = await itedutils.findGitHubToTelegram(env.ITED_GH_USERS, ghResult.id);
+						await tgutils.declineChatJoinRequest(env.JOIN_CHAT_MANAGE, userInfo.id);
+						await itedutils.banTelegramAccount(env.ITED_USERS, userInfo.id, "duplicate", env.JOIN_CHAT_MANAGE);
+						await itedutils.banTelegramAccount(env.ITED_USERS, tgId, "duplicate", env.JOIN_CHAT_MANAGE);
+						await itedutils.banGitHubAccount(env.ITED_GH_USERS, ghResult.id, "duplicate");
+						await tgutils.sendMessage(userInfo.id, replies['message']['duplicate']);
+						await tgutils.sendMessage(tgId, replies['message']['banned']);
+						return new Response(JSON.stringify({
+							ok: false,
+							message: replies['message']['duplicate']
+						}), {
+							status: 200,
+							headers: {
+								"Content-Type": "application/json"
+							}
+						});
+					}
+					await tgutils.approveChatJoinRequest(env.JOIN_CHAT_MANAGE, userInfo.id);
+					await env.ITED_USERS.put(userInfo.id, JSON.stringify({
+						github: ghResult.id
+					}));
+					await env.ITED_GH_USERS.put(ghResult.id, JSON.stringify({
+						telegram: userInfo.id
+					}));
+					await tgutils.sendMessage(userInfo.id, replies['message']['approved']);
+					return new Response(JSON.stringify({
+						ok: true,
+						message: replies['message']['approved']
+					}), {
+						status: 200,
+						headers: {
+							"Content-Type": "application/json"
+						}
+					});
+				} else {
+					await tgutils.declineChatJoinRequest(env.JOIN_CHAT_MANAGE, userInfo.id);
+					await tgutils.sendMessage(userInfo.id, replies['message']['signature_failed']);
+					return new Response(JSON.stringify({
+						ok: false,
+						message: replies['message']['signature_failed']
+					}), {
+						status: 200,
+						headers: {
+							"Content-Type": "application/json"
+						}
+					});
+				}
 			}
 		} else {
 			try {
