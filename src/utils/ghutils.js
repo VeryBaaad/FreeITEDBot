@@ -5,7 +5,8 @@ export async function runWorkflow(repo, workflow_id, ref, inputs = {}) {
     headers: {
       "Accept": "application/vnd.github.v3+json",
       "Authorization": `Bearer ${github_token}`,
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "User-Agent": "cf-worker"
     },
     body: JSON.stringify({
       ref: ref,

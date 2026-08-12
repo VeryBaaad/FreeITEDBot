@@ -217,13 +217,13 @@ export default {
 				await tgutils.sendMessage(userInfo.id, replies['message']['uploading']);
 				if (await itedutils.isDebugMode(env.ITED_USERS, userInfo.id)) {
 					await ghutils.runWorkflow(env.GH_REPO, "debug.yml", env.GH_BRANCH, {
-						github_id: await itedutils.findTelegramToGitHub(env.ITED_USERS, userInfo.id),
-						tg_id: userInfo.id,
+						github_id: String(await itedutils.findTelegramToGitHub(env.ITED_USERS, userInfo.id)),
+						tg_id: String(userInfo.id),
 					});
 				} else {
 					await ghutils.runWorkflow(env.GH_REPO, "release.yml", env.GH_BRANCH, {
-						github_id: await itedutils.findTelegramToGitHub(env.ITED_USERS, userInfo.id),
-						tg_id: userInfo.id,
+						github_id: String(await itedutils.findTelegramToGitHub(env.ITED_USERS, userInfo.id)),
+						tg_id: String(userInfo.id),
 					});
 				}
 				return new Response(JSON.stringify({
