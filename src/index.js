@@ -214,27 +214,39 @@ export default {
 				});
 			}
 			if (await tgutils.isJoined(env.JOIN_CHAT_MANAGE, userInfo.id) && !payload.username && !payload.signature) {
-				await tgutils.sendMessage(userInfo.id, replies['message']['uploading']);
-				if (await itedutils.isDebugMode(env.ITED_USERS, userInfo.id)) {
-					await ghutils.runWorkflow(env.GH_REPO, "debug.yml", env.GH_BRANCH, {
-						github_id: String(await itedutils.findTelegramToGitHub(env.ITED_USERS, userInfo.id)),
-						tg_id: String(userInfo.id),
+				if (await itedutils.isWithinTimeLimit(env.ITED_USERS, userInfo.id)) {
+					return new Response(JSON.stringify({
+						ok: false,
+						message: replies['message']['waittime']
+					}), {
+						status: 200,
+						headers: {
+							"Content-Type": "application/json"
+						}
 					});
 				} else {
-					await ghutils.runWorkflow(env.GH_REPO, "release.yml", env.GH_BRANCH, {
-						github_id: String(await itedutils.findTelegramToGitHub(env.ITED_USERS, userInfo.id)),
-						tg_id: String(userInfo.id),
+					await tgutils.sendMessage(userInfo.id, replies['message']['uploading']);
+					if (await itedutils.isDebugMode(env.ITED_USERS, userInfo.id)) {
+						await ghutils.runWorkflow(env.GH_REPO, "debug.yml", env.GH_BRANCH, {
+							github_id: String(await itedutils.findTelegramToGitHub(env.ITED_USERS, userInfo.id)),
+							tg_id: String(userInfo.id),
+						});
+					} else {
+						await ghutils.runWorkflow(env.GH_REPO, "release.yml", env.GH_BRANCH, {
+							github_id: String(await itedutils.findTelegramToGitHub(env.ITED_USERS, userInfo.id)),
+							tg_id: String(userInfo.id),
+						});
+					}
+					return new Response(JSON.stringify({
+						ok: true,
+						message: replies['message']['uploading']
+					}), {
+						status: 200,
+						headers: {
+							"Content-Type": "application/json"
+						}
 					});
 				}
-				return new Response(JSON.stringify({
-					ok: true,
-					message: replies['message']['uploading']
-				}), {
-					status: 200,
-					headers: {
-						"Content-Type": "application/json"
-					}
-				});
 			} else {
 				if (await verify(payload.username, payload.signature, Buffer.from(String(userInfo.id)).toString("base64"))) {
 					const ghResult = await isGitHubAccountFullOneDay(payload.username, { env })
