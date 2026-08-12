@@ -76,7 +76,7 @@ export default {
 				if (payload.message.chat.type === "private") {
 					if (payload.message.text && (payload.message.text.startsWith("/start dl")
 					    || payload.message.text.startsWith("/dl"))) {
-						if (!await itedutils.isWithinTimeLimit(env.ITED_USERS, payload.message.from.id)) {
+						if (await itedutils.isWithinTimeLimit(env.ITED_USERS, payload.message.from.id)) {
 							await tgutils.sendMessage(payload.message.chat.id, replies['message']['waittime']);
 							return new Response(null, { status: 200 });
 						}
