@@ -121,7 +121,7 @@ export default {
 							const userId = parts[1];
 							const reason = await itedutils.escapeMarkdownV2(parts.slice(2).join(" ")) || "leak";
 							await itedutils.banTelegramAccount(env.ITED_USERS, userId, reason, env.JOIN_CHAT_MANAGE);
-							await tgutils.sendMessage(payload.message.chat.id, `User ${userId} banned for reason: \`${reason}\``, true);
+							await tgutils.sendMessage(payload.message.chat.id, `User ${userId} banned for reason:\n\`${reason}\``, true);
 						}
 					} else if (payload.message.text && payload.message.text.startsWith("!ban_github ")) {
 						const parts = payload.message.text.split(" ");
@@ -129,7 +129,7 @@ export default {
 							const ghId = parts[1];
 							const reason = await itedutils.escapeMarkdownV2(parts.slice(2).join(" ")) || "leak";
 							await itedutils.banGitHubAccount(env.ITED_GH_USERS, ghId, reason);
-							await tgutils.sendMessage(payload.message.chat.id, `Github user ${ghId} banned for reason: \`${reason}\``, true);
+							await tgutils.sendMessage(payload.message.chat.id, `Github user ${ghId} banned for reason:\n\`${reason}\``, true);
 						}
 					}
 				}
