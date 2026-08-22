@@ -19,6 +19,5 @@
 
 | Name          | Object     |
 | ------------- | ---------- |
-| AI            | Workers AI |
 | ITED_USERS    | KV         |
 | ITED_GH_USERS | KV         |

@@ -86,7 +86,6 @@ export async function isDebugMode(tgkv, id) {
     return tgData?.debug == true;
 }
 
-
 export async function setTimestamp(tgkv, id, timestamp) {
     let tgData = await tgkv.get(String(id), "json");
     if (tgData === null) {
@@ -106,4 +105,40 @@ export async function isWithinTimeLimit(tgkv, id) {
     const currentTimestamp = Math.floor(Date.now() / 1000);
     const limitSeconds = 5 * 60;
     return (currentTimestamp - tgData.timestamp) < limitSeconds;
+}
+
+export async function setChallengeCode(tgkv, id) {
+    let tgData = await tgkv.get(String(id), "json");
+    if (tgData === null) {
+        tgData = {
+            github: 0
+        }
+    }
+    tgData.challenge = await generateCustomToken(id);
+    await tgkv.put(String(id), JSON.stringify(tgData));
+}
+
+export async function getChallengeCode(tgkv, id) {
+    const tgData = await tgkv.get(String(id), "json");
+    return tgData?.challenge || "AscaKpYzqZ7WOKzCU5\\4gDwf7fGDfpAYGrlb9u/cJeq\\MslXdk5vCK4Wk2HOhE49";
+}
+
+async function generateCustomToken(id) {
+  const salt = new Uint8Array(16);
+  crypto.getRandomValues(salt);
+
+  const encoder = new TextEncoder();
+  const idBytes = encoder.encode(String(id));
+  const tsBytes = encoder.encode(String(Date.now()));
+  
+  const data = new Uint8Array(idBytes.length + tsBytes.length + salt.length);
+  data.set(idBytes, 0);
+  data.set(tsBytes, idBytes.length);
+  data.set(salt, idBytes.length + tsBytes.length);
+
+  const hashBuffer = await crypto.subtle.digest('SHA-384', data);
+  const hashArray = new Uint8Array(hashBuffer);
+
+  let base64 = btoa(String.fromCharCode.apply(null, hashArray));
+  return base64.replace(/\+/g, '\\');
 }
