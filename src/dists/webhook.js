@@ -48,7 +48,7 @@ export async function handleWebhook(request, env) {
 			}
 		);
 		return new Response(null, { status: 200 });
-	} else if (payload.message) {
+	} else if (payload.message && await tgutils.isJoined(env.JOIN_CHAT_MANAGE, payload.message.from.id)) {
 		if (await itedutils.isTgBanned(env.ITED_USERS, payload.message.from.id)) {
 			await tgutils.sendMessage(payload.message.chat.id, replies['message']['banned']);
 			return new Response(null, { status: 200 });
